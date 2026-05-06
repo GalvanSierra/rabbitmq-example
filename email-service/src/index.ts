@@ -4,24 +4,24 @@ import { RabbitMqMessageConsumer } from './infrastructure/messaging/RabbitMqMess
 const app: Express = express();
 app.use(express.json());
 
-const start = async ()=> {
-    const consumer = new RabbitMqMessageConsumer()
-    await consumer.connect()
+const start = async () => {
+  const consumer = new RabbitMqMessageConsumer();
+  await consumer.connect();
 
-    consumer.consume('order_queue', (data) => {
-        console.log('[Email Service] Enviando correo para la orden:')
-        console.log(data)
-    })
-}
+  consumer.consume('order_queue', (data) => {
+    console.log('[Email Service] Enviando correo para la orden:');
+    console.log(data);
+  });
+};
 
-start()
+start();
 
 app.post('/send', (req: Request, res: Response) => {
-    console.log('[Email Service] Send request:', req.body);
-    res.json({ success: true, message: 'Email enviado' });
+  console.log('[Email Service] Send request:', req.body);
+  res.json({ success: true, message: 'Email enviado' });
 });
 
 const PORT = 3002;
 app.listen(PORT, () => {
-    console.log(`Email Service running on port ${PORT}`);
+  console.log(`Email Service running on port ${PORT}`);
 });
