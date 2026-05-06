@@ -4,7 +4,6 @@ import { RabbitMqMessagePublisher } from '../infrastructure/messaging/RabbitMqMe
 export class OrderService {
     private inventoryClient: AxiosInstance;
     private emailClient: AxiosInstance;
-    private analyticsClient: AxiosInstance;
     private publisher: RabbitMqMessagePublisher
 
     constructor() {
@@ -18,10 +17,6 @@ export class OrderService {
             timeout: 5000
         });
         
-        this.analyticsClient = axios.create({
-            baseURL: 'http://localhost:3003',
-            timeout: 5000
-        });
 
         this.publisher = new RabbitMqMessagePublisher()
     }
