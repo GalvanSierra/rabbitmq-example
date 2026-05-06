@@ -1,14 +1,55 @@
 import express, { Express, Request, Response } from 'express';
+import { RabbitMqMessagePublisher } from './infrastructure/messaging/RabbitMqMessagePublisher';
+
+interface Order {
+  customerName: string;
+  product: string;
+  quantity: number;
+}
 
 const app: Express = express();
 app.use(express.json());
 
-app.post('/reserve', (req: Request, res: Response) => {
-  console.log('[Inventory Service] Reserve request:', req.body);
-  res.json({ success: true, message: 'Inventario reservado' });
-});
+const publisher = new RabbitMqMessagePublisher();
+function isOrder(obj: any): obj is Order {
+  return (
+    obj &&
+    typeof obj.customerName === 'string' &&
+    typeof obj.product === 'string' &&
+    typeof obj.quantity === 'number'
+  );
+}
 
-const PORT = 3001;
-app.listen(PORT, () => {
-  console.log(`Inventory Service running on port ${PORT}`);
-});
+const start = async () => {
+  await publisher.connect();
+  console.log('[Orders API] Conectado a RabbitMQ');
+
+  app.post('/orders', async (req: Request, res: Response) => {
+    if (!isOrder(req.body)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Datos de pedido inválidos',
+      });
+    }
+
+    const orderData = {
+      type: 'OrderCreatedMessage',
+      orderId: `ORD-${Date.now()}`,
+      createdAt: new Date().toISOString(),
+      ...req.body,
+    };
+
+    console.log('[Orders API] Nueva orden recibida:', orderData);
+
+    await publisher.publish('order_queue', orderData);
+
+    res.status(201).json({ success: true, orderId: orderData.orderId });
+  });
+
+  const PORT = 3001;
+  app.listen(PORT, () => {
+    console.log(`Orders API running on port ${PORT}`);
+  });
+};
+
+start();

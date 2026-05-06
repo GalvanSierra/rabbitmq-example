@@ -2,7 +2,7 @@ import { ChannelModel, ConfirmChannel, connect } from 'amqplib';
 
 const RABBITMQ_URL = 'amqp://guest:guest@rabbitmq:5672';
 
-export class RabbitMqMessageConsumer {
+export class RabbitMqMessagePublisher {
   private connection: ChannelModel;
   private channel: ConfirmChannel;
 
@@ -16,18 +16,11 @@ export class RabbitMqMessageConsumer {
     this.channel = await this.connection.createConfirmChannel();
   }
 
-  public async consume(
-    queue: string,
-    callback: (message: any) => void
-  ): Promise<void> {
+  public async publish(queue: string, message: any): Promise<void> {
     await this.channel.assertQueue(queue, { durable: true });
-
-    this.channel.consume(queue, (msg) => {
-      if (msg !== null) {
-        const content = JSON.parse(msg.content.toString());
-        callback(content);
-        this.channel.ack(msg);
-      }
+    this.channel.sendToQueue(queue, Buffer.from(JSON.stringify(message)), {
+      persistent: true,
     });
+    await this.channel.waitForConfirms();
   }
 }
