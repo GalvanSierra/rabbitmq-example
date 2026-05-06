@@ -1,5 +1,5 @@
 {
-  "name": "inventory-service",
+  "name": "orders-api",
   "version": "1.0.0",
   "main": "dist/index.js",
   "scripts": {
@@ -7,9 +7,11 @@
     "start": "ts-node src/index.ts"
   },
   "dependencies": {
+    "amqplib": "^0.10.9",
     "express": "^4.18.0"
   },
   "devDependencies": {
+    "@types/amqplib": "^0.10.8",
     "@types/express": "^4.17.0",
     "@types/node": "^20.0.0",
     "typescript": "^5.0.0",
