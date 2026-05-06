@@ -1,4 +1,4 @@
-import express, { Express, Request, Response } from 'express';
+import express, { Express } from 'express';
 import { RabbitMqMessageConsumer } from './infrastructure/messaging/RabbitMqMessageConsumer';
 
 const app: Express = express();
@@ -15,11 +15,6 @@ const start = async () => {
 };
 
 start();
-
-app.post('/send', (req: Request, res: Response) => {
-  console.log('[Email Service] Send request:', req.body);
-  res.json({ success: true, message: 'Email enviado' });
-});
 
 const PORT = 3002;
 app.listen(PORT, () => {
