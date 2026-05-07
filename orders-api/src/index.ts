@@ -1,3 +1,4 @@
+import cors from 'cors';
 import express, { Express, Request, Response } from 'express';
 import { RabbitMqMessagePublisher } from './infrastructure/messaging/RabbitMqMessagePublisher';
 
@@ -8,6 +9,7 @@ interface Order {
 }
 
 const app: Express = express();
+app.use(cors());
 app.use(express.json());
 
 const publisher = new RabbitMqMessagePublisher();
@@ -44,6 +46,10 @@ const start = async () => {
     await publisher.publish('order_queue', orderData);
 
     res.status(201).json({ success: true, orderId: orderData.orderId });
+  });
+
+  app.get('/test', async (req: Request, res: Response) => {
+    res.status(200).json({ success: true, message: 'Orders API running' });
   });
 
   const PORT = 3001;

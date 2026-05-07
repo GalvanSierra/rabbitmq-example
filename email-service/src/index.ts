@@ -1,7 +1,9 @@
+import cors from 'cors';
 import express, { Express } from 'express';
 import { RabbitMqMessageConsumer } from './infrastructure/messaging/RabbitMqMessageConsumer';
 
 const app: Express = express();
+app.use(cors());
 app.use(express.json());
 
 const start = async () => {
